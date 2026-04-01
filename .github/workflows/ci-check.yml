@@ -1,0 +1,36 @@
+name: CI Check
+
+on:
+  push:
+    branches: [ main, 'feature/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  csharp-format-check:
+    name: C# Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Check formatting
+        run: |
+          find . -name "*.cs" -type f | while read file; do
+            dotnet format "$file" --dry-run --verify-no-changes || exit 1
+          done
+
+  shellcheck:
+    name: Shell Script Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './.clawdbot'
+          severity: error
+          format: gcc
