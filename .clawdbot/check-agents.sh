@@ -124,13 +124,10 @@ jq -c '.tasks[]' "$TASKS_FILE" | while read -r task; do
                     # Update task status
                     update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
 
-                    # Update kanban.md
-                    bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
-
                     # Send notification
                     send_feishu_notification \
                         "PR #$PR_NUMBER CI Passed - Task Complete" \
-                        "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
+                        "$PR_TITLE\nBranch: $BRANCH\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n查看 PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER" \
                         "✅"
                 else
                     log "  ℹ️  Task already done, skipping notification"
@@ -213,13 +210,10 @@ jq -c '.tasks[]' "$TASKS_FILE" | while read -r task; do
                         # Update task status
                         update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
 
-                        # Update kanban.md
-                        bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
-
                         # Send notification
                         send_feishu_notification \
                             "PR #$PR_NUMBER CI Passed - Task Complete" \
-                            "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
+                            "$PR_TITLE\nBranch: $BRANCH\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n查看 PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER" \
                             "✅"
                     else
                         log "  ℹ️  Task already done, skipping notification"
