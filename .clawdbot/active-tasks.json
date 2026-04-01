@@ -1,3 +1,11 @@
 {
-  "tasks": []
+  "tasks": [
+    {
+      "date": "2026-04-01",
+      "taskNumber": 1,
+      "title": "Create directory listing shell script",
+      "status": "completed",
+      "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/1"
+    }
+  ]
 }
