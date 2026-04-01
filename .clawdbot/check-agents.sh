@@ -32,28 +32,11 @@ send_feishu_notification() {
         return
     fi
 
-    local payload=$(jq -n \
-        --arg title "$title" \
-        --arg content "$content" \
-        --arg emoji "$emoji" \
-        '{
-            "msg_type": "interactive",
-            "card": {
-                "elements": [
-                    {
-                        "tag": "div",
-                        "text": {
-                            "tag": "lark_md",
-                            "content": "\($emoji) **\($title)**\n\n\($content)"
-                        }
-                    }
-                ]
-            }
-        }')
+    local message="$emoji $title\n\n$content"
 
     curl -s -X POST "$WEBHOOK_URL" \
         -H "Content-Type: application/json" \
-        -d "$payload" > /dev/null 2>&1
+        -d "{\"msg_type\": \"text\", \"content\": {\"text\": \"$message\"}}" > /dev/null 2>&1
 
     log "📤 Sent Feishu notification: $title"
 }
@@ -65,6 +48,15 @@ update_task() {
 
     jq "(.tasks[] | select(.id == \"$task_id\")) += $update" "$TASKS_FILE" > "${TASKS_FILE}.tmp"
     mv "${TASKS_FILE}.tmp" "$TASKS_FILE"
+}
+
+# Check if task was just marked as done (first time completion)
+is_first_completion() {
+    local task=$1
+    local previous_status=$(echo "$task" | jq -r '.status // "running"')
+    local new_status=$(echo "$2" | jq -r '.status')
+
+    [[ "$previous_status" != "done" && "$new_status" == "done" ]]
 }
 
 # Main monitoring loop
@@ -117,25 +109,33 @@ jq -c '.tasks[]' "$TASKS_FILE" | while read -r task; do
             if [[ "$CI_STATUS" == "success" ]]; then
                 log "  ✅ CI passed, marking task as done (loose mode)"
 
-                # Trigger code review (reference only)
-                log "  🔍 Running code review (reference only)..."
-                if "$REPO/.clawdbot/review-pr.sh" "$PR_NUMBER"; then
-                    log "  ✅ Code review completed"
+                # Check if this is the first completion
+                if is_first_completion "$task" '{"status": "done"}'; then
+                    log "  📤 First completion detected, sending notification..."
+
+                    # Trigger code review (reference only)
+                    log "  🔍 Running code review (reference only)..."
+                    if "$REPO/.clawdbot/review-pr.sh" "$PR_NUMBER"; then
+                        log "  ✅ Code review completed"
+                    else
+                        log "  ⚠️  Code review failed, but task marked as done (loose mode)"
+                    fi
+
+                    # Update task status
+                    update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
+
+                    # Update kanban.md
+                    bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
+
+                    # Send notification
+                    send_feishu_notification \
+                        "PR #$PR_NUMBER CI Passed - Task Complete" \
+                        "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
+                        "✅"
                 else
-                    log "  ⚠️  Code review failed, but task marked as done (loose mode)"
+                    log "  ℹ️  Task already done, skipping notification"
+                    update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
                 fi
-
-                # Update task status
-                update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
-
-                # Update kanban.md
-                bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
-
-                # Send notification
-                send_feishu_notification \
-                    "PR #$PR_NUMBER CI Passed - Task Complete" \
-                    "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
-                    "✅"
 
                 continue
             elif [[ "$CI_STATUS" == "failure" ]]; then
@@ -198,25 +198,33 @@ jq -c '.tasks[]' "$TASKS_FILE" | while read -r task; do
                 success)
                     log "  ✅ CI passed, marking task as done (loose mode)"
 
-                    # Trigger code review (reference only)
-                    log "  🔍 Running code review (reference only)..."
-                    if "$REPO/.clawdbot/review-pr.sh" "$PR_NUMBER"; then
-                        log "  ✅ Code review completed"
+                    # Check if this is the first completion
+                    if is_first_completion "$task" '{"status": "done"}'; then
+                        log "  📤 First completion detected, sending notification..."
+
+                        # Trigger code review (reference only)
+                        log "  🔍 Running code review (reference only)..."
+                        if "$REPO/.clawdbot/review-pr.sh" "$PR_NUMBER"; then
+                            log "  ✅ Code review completed"
+                        else
+                            log "  ⚠️  Code review failed, but task marked as done (loose mode)"
+                        fi
+
+                        # Update task status
+                        update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
+
+                        # Update kanban.md
+                        bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
+
+                        # Send notification
+                        send_feishu_notification \
+                            "PR #$PR_NUMBER CI Passed - Task Complete" \
+                            "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
+                            "✅"
                     else
-                        log "  ⚠️  Code review failed, but task marked as done (loose mode)"
+                        log "  ℹ️  Task already done, skipping notification"
+                        update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
                     fi
-
-                    # Update task status
-                    update_task "$TASK_ID" '{"status": "done", "completedAt": "'$(date +%s)000'", "pr": '"$PR_NUMBER"', "checks": {"prCreated": true, "ciPassed": true}}'
-
-                    # Update kanban.md
-                    bash /Users/tinlok/.openclaw/workspace/scripts/task-complete-notify.sh "$TASK_DATE" "$TASK_ID" "$PROMPT" "开发" "PR: https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER"
-
-                    # Send notification
-                    send_feishu_notification \
-                        "PR #$PR_NUMBER CI Passed - Task Complete" \
-                        "**$PR_TITLE**\nBranch: \`$BRANCH\`\nCI: ✅\nCode Review: ✅ (参考)\n\n任务已完成！\n\n🔗 [查看 PR](https://github.com/Tinlok/daily-tasks-code/pull/$PR_NUMBER)" \
-                        "✅"
                     ;;
                 failure)
                     log "  ❌ CI failed"
