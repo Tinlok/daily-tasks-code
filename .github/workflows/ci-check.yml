@@ -20,7 +20,7 @@ jobs:
       - name: Check formatting
         run: |
           find . -name "*.cs" -type f | while read file; do
-            dotnet format "$file" --dry-run --verify-no-changes || exit 1
+            dotnet format "$file" --verify-no-changes || exit 1
           done
 
   shellcheck:
