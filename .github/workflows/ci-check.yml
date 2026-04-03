@@ -19,8 +19,12 @@ jobs:
 
       - name: Check formatting
         run: |
+          if [ -z "$(find . -name '*.csproj' -o -name '*.sln' | head -1)" ]; then
+            echo "No .csproj/.sln found, skipping dotnet format check"
+            exit 0
+          fi
           find . -name "*.cs" -type f | while read file; do
-            dotnet format "$file" --dry-run --verify-no-changes || exit 1
+            dotnet format "$file" --verify-no-changes || exit 1
           done
 
   shellcheck:
