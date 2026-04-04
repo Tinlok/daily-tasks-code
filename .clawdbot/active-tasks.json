@@ -6,6 +6,20 @@
       "title": "Create directory listing shell script",
       "status": "completed",
       "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/1"
+    },
+    {
+      "id": "2",
+      "date": "2026-04-04",
+      "tmuxSession": "agent-2",
+      "agent": "claude",
+      "description": "扩展PlayerController2D，添加冲刺+攀爬机制，完善移动手感\\n\\n具体要求：\\n1. 在现有PlayerController2D基础上添加冲刺功能：按住Shift键加速移动，消耗耐力值\\n2. 添加攀爬机制：在特定墙面可以攀爬，按住W/S键控制上下攀爬\\n3. 优化移动手感：添加加速度、摩擦力、空气阻力等物理效果\\n4. 添加状态系统：站立、行走、冲刺、攀爬、跳跃等状态\\n5. 添加动画系统支持：根据移动状态播放相应动画\\n6. 文件位置：2026-04-04/task-2/\\n7. 代码规范：符合Unity C#编码规范，添加完整注释和文档\\n8. 质量标准：代码可运行、功能完整、性能优化",
+      "repo": "daily-tasks-code",
+      "worktree": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2",
+      "taskDir": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2/2026-04-04/task-2",
+      "branch": "feature/2026-04-04-task-2",
+      "startedAt": 1775261347000,
+      "status": "running",
+      "notifyOnComplete": true
     }
   ]
 }
