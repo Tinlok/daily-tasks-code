@@ -7,6 +7,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(GroundCheck))]
+[RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(PlayerInput))]
 public class PlayerController2D_Enhanced : MonoBehaviour
 {
     #region 组件引用
@@ -96,8 +98,7 @@ public class PlayerController2D_Enhanced : MonoBehaviour
         
         // 初始化状态
         playerState = new PlayerState();
-        playerStats = GetComponent<PlayerStats>();
-        playerInput = GetComponent<PlayerInput>();
+        // playerStats 和 playerInput 现在通过 RequireComponent 自动获取
         
         // 初始化耐力
         currentStamina = maxStamina;
@@ -354,12 +355,6 @@ public class PlayerController2D_Enhanced : MonoBehaviour
             }
         }
         
-        // 更新耐力恢复计时器
-        if (!isSprinting && currentStamina < maxStamina)
-        {
-            staminaRegenTimer -= Time.fixedDeltaTime;
-        }
-        
         // 触发耐力变化事件
         onStaminaChanged?.Invoke();
     }
@@ -391,7 +386,8 @@ public class PlayerController2D_Enhanced : MonoBehaviour
     {
         // 检测角色周围的墙面
         Vector2 checkPosition = transform.position;
-        Vector2 checkDirection = new Vector2(moveInput.x, 0f).normalized;
+        // 使用当前朝向作为检测方向
+        Vector2 checkDirection = isFacingRight ? Vector2.right : Vector2.left;
         
         RaycastHit2D hit = Physics2D.Raycast(
             checkPosition,
@@ -466,12 +462,6 @@ public class PlayerController2D_Enhanced : MonoBehaviour
         // 更新速度
         velocity = new Vector2(velocityX, rb.velocity.y);
         
-        // 应用重力
-        if (!isClimbing)
-        {
-            velocity.y -= gravityScale * Time.fixedDeltaTime * 9.81f;
-        }
-        
         // 限制下落速度
         velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
         
@@ -530,7 +520,8 @@ public class PlayerController2D_Enhanced : MonoBehaviour
         transform.localScale = scale;
         
         // 触发翻转事件
-        onLand?.Invoke();
+        // TODO: 添加 onFlip 事件
+        // onFlip?.Invoke();
     }
     #endregion
 
@@ -578,29 +569,7 @@ public class PlayerController2D_Enhanced : MonoBehaviour
         onStaminaChanged?.Invoke();
     }
 
-    /// <summary>
-    /// 是否可以冲刺
-    /// </summary>
-    public bool CanSprint()
-    {
-        return this.CanSprint();
-    }
-
-    /// <summary>
-    /// 是否可以攀爬
-    /// </summary>
-    public bool CanClimb()
-    {
-        return this.CanClimb();
-    }
-
-    /// <summary>
-    /// 是否可以跳跃
-    /// </summary>
-    public bool CanJump()
-    {
-        return this.CanJump();
-    }
+    // 已删除有递归问题的公共方法，使用私有方法代替
     #endregion
 }
 
