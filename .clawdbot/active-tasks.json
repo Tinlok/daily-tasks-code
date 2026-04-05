@@ -6,6 +6,13 @@
       "title": "Create directory listing shell script",
       "status": "completed",
       "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/1"
+    },
+    {
+      "date": "2026-04-05",
+      "taskNumber": 2,
+      "title": "Unity 2D 关卡编辑器原型",
+      "status": "completed",
+      "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/4"
     }
   ]
 }
