@@ -1,146 +1,145 @@
-# Unity Level Editor Prototype
+# 简单关卡编辑器原型
 
-A simple 2D level editor system for Unity that allows placing platforms, traps, and collectibles through a grid-based interface.
+## 项目概述
+这是一个Unity 2D/3D关卡编辑器的原型实现，支持放置平台、陷阱和收集物。该项目提供了完整的关卡编辑功能，包括对象放置、删除、保存和加载等功能。
 
-## Features
+## 功能特性
 
-- **Grid-based placement system** - Snap objects to a customizable grid
-- **Multiple object types**:
-  - Platforms (Normal, Ice, Bouncy, Moving, Breakable)
-  - Traps (Spike, Sawblade, Laser, Fire, Crusher)
-  - Collectibles (Coin, Gem, Heart, Star, Key)
-- **Save/Load levels** - Export level data to JSON
-- **UI Interface** - Complete editor UI for tool selection
-- **Runtime preview** - See trap animations and collectible effects
+### 核心功能
+- **平台编辑器**: 放置静态和移动平台
+- **陷阱系统**: 支持三种陷阱类型（尖刺、激光、落石）
+- **收集物系统**: 硬币、宝石、能量提升等
+- **网格对齐**: 对象自动对齐到网格
+- **实时编辑**: 左键放置，右键删除
 
-## Project Structure
+### 支持的陷阱类型
+1. **尖刺陷阱 (Spike)**: 基础伤害陷阱，有警告动画
+2. **激光陷阱 (Laser)**: 持续伤害的激光陷阱
+3. **落石陷阱 (Falling Rock)**: 从上方掉落的岩石陷阱
+
+### 支持的收集物类型
+1. **硬币 (Coin)**: 基础收集物，+1分
+2. **宝石 (Gem)**: 高价值收集物，+5分
+3. **能量提升 (PowerUp)**: 特殊道具，提供临时能力
+
+## 文件结构
 
 ```
-Assets/Scripts/LevelEditor/
-├── LevelData.cs       # Serializable data structures
-├── Platform.cs        # Platform behavior and types
-├── Trap.cs           # Trap behavior and types
-├── Collectible.cs    # Collectible behavior and types
-├── LevelEditor.cs    # Core editor logic
-└── LevelEditorUI.cs  # UI controller
+2026-04-06/task-2/
+├── LevelEditor.cs         # 关卡编辑器主控制器
+├── LevelEditorUI.cs       # 编辑器UI控制器
+├── Platform.cs            # 平台脚本（支持移动）
+├── Trap.cs                # 陷阱脚本（三种类型）
+├── Collectible.cs         # 收集物脚本（三种类型）
+└── README.md              # 项目说明文档
 ```
 
-## Setup Instructions
+## 使用方法
 
-### 1. Create Prefabs
+### 1. 场景设置
+1. 创建一个新的Unity场景
+2. 添加一个相机作为Editor Camera
+3. 创建空对象作为Level Editor容器
+4. 将相关脚本挂载到对应对象
 
-Create three prefabs with the following components:
+### 2. 预置体准备
+1. 创建三种预置体：
+   - Platform Prefab: 包含Platform脚本
+   - Trap Prefab: 包含Trap脚本
+   - Collectible Prefab: 包含Collectible脚本
 
-**Platform Prefab:**
-- Add `Platform.cs` component
-- Add `BoxCollider2D`
-- Add `SpriteRenderer`
+### 3. 编辑器操作
+- **左键点击**: 放置当前选中的对象
+- **右键点击**: 删除点击位置的对象
+- **工具切换**: 通过UI按钮切换编辑工具
+- **保存关卡**: 点击Save按钮保存当前关卡
+- **加载关卡**: 点击Load按钮加载已保存的关卡
+- **清空关卡**: 点击Clear按钮清空所有对象
 
-**Trap Prefab:**
-- Add `Trap.cs` component
-- Add `BoxCollider2D` (set Is Trigger to true)
-- Add `SpriteRenderer`
+### 4. 游戏测试
+- 将编辑模式切换到游戏模式测试关卡
+- 玩家可以与平台、陷阱和收集物交互
 
-**Collectible Prefab:**
-- Add `Collectible.cs` component
-- Add `BoxCollider2D` (set Is Trigger to true)
-- Add `SpriteRenderer`
+## 脚本说明
 
-### 2. Create Level Editor GameObject
+### LevelEditor.cs
+主编辑器控制器，负责：
+- 管理编辑状态和工具选择
+- 处理鼠标输入和对象放置
+- 维护关卡数据
+- 提供保存/加载功能
 
-1. Create an empty GameObject named "LevelEditor"
-2. Add the `LevelEditor.cs` component
-3. Assign the prefabs to the respective fields
-4. Configure grid settings (cell size, dimensions)
+### LevelEditorUI.cs
+UI控制器，负责：
+- 工具按钮的交互
+- 信息显示更新
+- 操作按钮的事件处理
 
-### 3. Create UI
+### Platform.cs
+平台行为控制：
+- 静态平台：普通地面平台
+- 移动平台：可设置移动范围和速度
+- 玩家跟随：玩家站在平台上时跟随移动
 
-1. Create a Canvas
-2. Add buttons for each tool and object type
-3. Create an empty GameObject and add `LevelEditorUI.cs`
-4. Assign all button references
+### Trap.cs
+陷阱行为控制：
+- 三种陷阱类型的不同表现
+- 伤害系统和触发机制
+- 视觉效果和动画
 
-### 4. Tag Setup
+### Collectible.cs
+收集物行为控制：
+- 三种收集物的不同效果
+- 收集动画和视觉反馈
+- 分数系统集成
 
-- Create a "Player" tag for player collision detection
+## 扩展功能建议
 
-## Usage
+### 1. 高级编辑功能
+- 撤销/重做操作
+- 对象选择和移动
+- 批量操作
+- 对象属性面板
 
-### Editor Mode
+### 2. 关卡数据管理
+- JSON序列化关卡数据
+- 关卡预览功能
+- 关卡验证系统
+- 多关卡管理
 
-1. Select a tool from the UI:
-   - **Select** - Click to select objects, Delete to remove
-   - **Platform** - Click to place platforms
-   - **Trap** - Click to place traps
-   - **Collectible** - Click to place collectibles
-   - **Erase** - Click to remove any object
+### 3. 游戏集成
+- 玩家控制器集成
+- 关卡完成检测
+- 计时器和分数系统
+- 关卡难度设置
 
-2. Choose the specific type of object to place
+### 4. 视觉效果
+- 对象放置预览
+- 编辑器网格显示
+- 对象选择高亮
+- 操作反馈动画
 
-3. Left-click to place, right-click to erase
+## 技术细节
 
-4. Use Save/Load buttons to persist levels
+### Unity版本要求
+- Unity 2020.3或更高版本
+- 支持C# 9.0语法特性
 
-### Keyboard Shortcuts
+### 依赖项
+- 无外部依赖，仅使用Unity内置功能
 
-- `Delete` - Remove selected object
-- Right-click - Quick erase
+### 性能考虑
+- 对象数量限制建议：单个场景不超过1000个对象
+- 使用对象池优化大量收集物的性能
+- 碰撞检测优化：使用层级分组
 
-## Platform Types
+## 开发日志
 
-| Type | Behavior |
-|------|----------|
-| Normal | Standard platform with default friction |
-| Ice | Low friction, slippery surface |
-| Bouncy | Bounces player on contact |
-| Moving | Moves back and forth along defined path |
-| Breakable | Breaks after being touched X times |
+### 2026-04-06
+- 初始版本发布
+- 实现基础编辑功能
+- 支持三种对象类型
+- 完成核心交互逻辑
 
-## Trap Types
-
-| Type | Behavior |
-|------|----------|
-| Spike | Static damage on contact |
-| Sawblade | Rotating blade, continuous damage |
-| Laser | Horizontal beam damage |
-| Fire | Area damage zone |
-| Crusher | Vertical crushing motion |
-
-## Collectible Types
-
-| Type | Effect |
-|------|--------|
-| Coin | +1 Score |
-| Gem | +10 Score |
-| Heart | +1 Health |
-| Star | Activate power-up |
-| Key | Add key to inventory |
-
-## Save Format
-
-Levels are saved as JSON with the following structure:
-
-```json
-{
-  "levelName": "New Level",
-  "gridOrigin": {"x": 0, "y": 0},
-  "cellSize": 1,
-  "gridWidth": 20,
-  "gridHeight": 10,
-  "platforms": [...],
-  "traps": [...],
-  "collectibles": [...]
-}
-```
-
-## Code Standards
-
-- C# 9.0+ features
-- Null-coalescing and null-conditional operators
-- Expression-bodied members where appropriate
-- Pattern matching with switch expressions
-- XML documentation comments
-
-## License
-
-MIT License - Free to use for personal and commercial projects.
+## 许可证
+本项目仅供学习使用，可以自由修改和扩展。
