@@ -13,6 +13,13 @@
       "title": "Unity 2D 关卡编辑器原型",
       "status": "completed",
       "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/4"
+    },
+    {
+      "date": "2026-04-10",
+      "taskNumber": 2,
+      "title": "Unity 2D 增强角色控制器",
+      "status": "completed",
+      "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/8"
     }
   ]
 }
