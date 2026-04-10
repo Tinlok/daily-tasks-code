@@ -1,157 +1,319 @@
-# PlayerController2D - 增强版2D平台角色控制器
+# Unity 2D 增强角色控制器
 
-## 功能概述
+一个功能完整的 Unity 2D 平台角色控制器，包含冲刺、攀爬、跳跃等高级移动机制。
 
-这个增强版的2D平台角色控制器基于原有的PlatformerController2D，添加了冲刺和攀爬机制，并优化了移动手感。
+## 功能特性
 
-### 核心功能
+### 核心移动系统
+- **平滑移动**: 可配置的加速度/减速度曲线
+- **空中控制**: 独立的空中移动参数
+- **摩擦力系统**: 自然的停止手感
 
-#### 1. 移动系统
-- **基础移动**: 平滑的8方向移动，支持地面和空中控制
-- **加速/减速**: 自然的加速度和减速度曲线
-- **地面摩擦**: 地面移动时的摩擦力效果
-- **空气控制**: 空中移动时的控制减弱
+### 冲刺系统 (Dash)
+- 短距离快速移动
+- 可配置冲刺速度和持续时间
+- 空中冲刺次数限制
+- 冲刺冷却机制
+- 冲刺残影视觉效果
+- 冲刺时可选忽略重力
 
-#### 2. 跳跃系统
-- **基础跳跃**: 单次和二次跳跃
-- **Coyote时间**: 离开地面后仍可跳跃的时间窗口
-- **跳跃缓冲**: 按键后可在落地前跳跃
-- **可变跳跃高度**: 松开跳跃键时减少跳跃高度
-- **空中蓄力**: 长按跳跃键增加额外跳跃力
+### 攀爬系统 (Climb)
+- 梯子/藤蔓等垂直攀爬
+- 墙壁攀爬（体力系统）
+- 边缘检测和自动攀爬
+- 体力消耗和恢复机制
 
-#### 3. 下蹲系统
-- **碰撞体缩放**: 下蹲时角色碰撞体变小
-- **速度限制**: 下蹲时移动速度降低
-- **平滑过渡**: 下蹲/站立时的平滑动画过渡
+### 跳跃系统 (Jump)
+- 可变跳跃高度（按住跳更高）
+- 土狼时间 (Coyote Time) - 离地后仍可跳跃的短暂时间
+- 跳跃缓冲 (Jump Buffer) - 提前按键的容错时间
+- 多段跳（二段跳、三段跳等）
+- 蹬墙跳
 
-#### 4. 墙壁交互
-- **墙壁滑行**: 沿墙壁缓慢滑落
-- **蹬墙跳**: 从墙壁跳跃
-- **墙壁跳跃缓冲**: 在墙壁滑行时可触发跳跃
+### 墙壁交互 (Wall)
+- 墙壁滑行
+- 蹬墙跳（带输入锁定）
+- 墙壁攀爬
 
-#### 5. 冲刺系统
-- **短距离冲刺**: 按下冲刺键进行快速移动
-- **可多次使用**: 可进行多次冲刺（默认1次，落地后恢复）
-- **冷却时间**: 冲刺后有冷却时间
-- **方向控制**: 可8方向冲刺
+### 下蹲系统 (Crouch)
+- 动态调整碰撞体大小
+- 下蹲移动
+- 头顶空间检测
 
-#### 6. 攀爬系统
-- **墙壁攀爬**: 按住攀爬键可在垂直墙壁上攀爬
-- **攀爬跳跃**: 攀爬时可进行特殊跳跃
-- **物理切换**: 攀爬时切换到不同的物理参数
+## 文件结构
 
-#### 7. 高级特性
-- **动画支持**: 完整的动画状态机支持
-- **调试可视化**: Unity编辑器中的可视化调试
-- **事件系统**: 落地、冲刺等事件的回调
-- **模块化设计**: 易于扩展和修改
+```
+Scripts/
+├── PlayerController2D.cs       # 核心控制器
+├── PlayerInputManager.cs       # 输入管理器
+├── PlayerCameraController.cs   # 相机跟随控制器
+├── PlayerAudioController.cs    # 音效控制器
+└── ClimbableSurface.cs         # 可攀爬表面组件
+```
 
-## Inspector参数详解
+## 快速开始
 
-### 移动设置
-- `moveSpeed`: 正常移动速度 (默认: 8)
-- `acceleration`: 加速度 (默认: 25)
-- `deceleration`: 减速度 (默认: 15)
-- `airControlFactor`: 空中控制因子 (默认: 0.6)
-- `friction`: 地面摩擦力 (默认: 0.1)
+### 1. 设置玩家对象
 
-### 冲刺设置
-- `dashSpeed`: 冲刺速度 (默认: 20)
-- `dashDuration`: 冲刺持续时间 (默认: 0.2)
-- `dashCooldown`: 冲刺冷却时间 (默认: 0.8)
-- `maxDashCount`: 最大冲刺次数 (默认: 1)
-- `dashRechargeTime`: 冲刺恢复时间 (默认: 2)
+创建一个 2D 对象并添加以下组件：
 
-### 跳跃设置
-- `jumpForce`: 跳跃力量 (默认: 14)
-- `coyoteTime`: Coyote时间 (默认: 0.2)
-- `jumpBufferTime`: 跳跃缓冲时间 (默认: 0.15)
-- `maxJumpCount`: 最大跳跃次数 (默认: 2)
-- `jumpCutMultiplier`: 跳跃高度削减倍数 (默认: 0.5)
-- `jumpAddForce`: 空中蓄力跳跃额外力量 (默认: 3)
+```
+GameObject (Player)
+├── Rigidbody2D
+│   ├── Gravity Scale: 3
+│   ├── Constraints: Freeze Rotation Z
+│   └── Collision Detection: Continuous
+├── BoxCollider2D
+│   ├── Size: (0.8, 1.8)
+│   └── Offset: (0, 0)
+├── SpriteRenderer
+└── PlayerController2D (脚本)
+```
 
-### 下蹲设置
-- `crouchSpeed`: 下蹲速度 (默认: 4)
-- `crouchSize`: 下蹲时碰撞体大小 (默认: 1x0.7)
-- `standSize`: 正常站立碰撞体大小 (默认: 1x1.8)
-- `crouchTransitionTime`: 下蹲过渡时间 (默认: 0.15)
+### 2. 配置图层
 
-### 墙壁交互设置
-- `wallSlideSpeed`: 墙壁滑行速度 (默认: 2)
-- `wallJumpForceX/Y`: 墙壁跳跃力量 (默认: 10, 12)
-- `wallJumpCooldown`: 墙壁跳跃冷却 (默认: 0.3)
-- `wallJumpBufferTime`: 墙壁跳跃缓冲时间 (默认: 0.2)
+在 Unity 的 Layer 设置中创建以下图层：
+- `Ground` - 用于地面检测
+- `Wall` - 用于墙壁检测
+- `Climbable` - 用于可攀爬表面
 
-### 攀爬设置
-- `climbSpeed`: 攀爬速度 (默认: 4)
-- `climbJumpForce`: 攀爬跳跃力量 (默认: 8)
-- `climbCheckDistance`: 攀爬检查距离 (默认: 0.3)
-- `climbableLayer`: 可攀爬层级
-- `grabDistance`: 抓取距离 (默认: 0.2)
+### 3. 设置输入
 
-## 使用说明
+在 Unity Input Manager 中添加以下输入轴：
 
-### 1. 基本设置
-1. 将此脚本添加到你的角色GameObject上
-2. 确保角色有Rigidbody2D和BoxCollider2D组件
-3. 在Inspector中设置适当的层级（Ground, Climbable等）
+| 名称 | 类型 | 按钮/轴 |
+|------|------|---------|
+| Horizontal | Key/Axis | A/D, Left/Right Arrow |
+| Vertical | Key/Axis | W/S, Up/Down Arrow |
+| Jump | Button | Space |
+| Dash | Button | Left Shift |
+| Crouch | Button | Left Ctrl |
 
-### 2. 输入设置
-默认按键映射：
-- 水平移动: A/D 或 左/右方向键
-- 垂直移动: W/S 或 上/下方向键
-- 跳跃: 空格键
-- 下蹲: S键
-- 冲刺: Shift键 (Fire3)
-- 攀爬: Ctrl键 (Fire2)
+### 4. 配置层级设置
 
-### 3. 动画集成
-如果角色有Animator组件，控制器会自动更新以下动画参数：
-- `IsGrounded`: 是否在地面
-- `IsCrouching`: 是否在下蹲
-- `IsWallSliding`: 是否在墙壁滑行
-- `IsClimbing`: 是否在攀爬
-- `IsDashing`: 是否在冲刺
-- `Speed`: 移动速度
-- `JumpCount`: 当前跳跃次数
+在 PlayerController2D 组件中：
+- **Ground Layer**: 设置为 Ground 图层
+- **Wall Layer**: 设置为 Wall 图层
+- **Climbable Layer**: 设置为 Climbable 图层
 
-### 4. 事件回调
-控制器提供了以下公共方法用于触发动画事件：
-- `OnLanding()`: 落地时调用
-- `OnDashStart()`: 开始冲刺时调用
+### 5. 设置相机
 
-## 性能优化
+1. 创建一个 Camera 对象
+2. 添加 `PlayerCameraController` 脚本
+3. 将玩家对象拖拽到 Target 字段
 
-1. **固定物理更新**: 使用FixedUpdate处理物理逻辑
-2. **条件检测**: 只在需要时进行地面和墙壁检测
-3. **缓存组件**: 缓存常用的组件引用
-4. **优化碰撞**: 合理设置碰撞体大小和检测范围
+## 参数说明
 
-## 扩展建议
+### 移动参数
 
-1. **添加更多移动状态**: 如滑铲、爬行等
-2. **实现连招系统**: 结合跳跃和冲刺的组合动作
-3. **添加粒子效果**: 落地、冲刺时的视觉反馈
-4. **音效集成**: 移动、跳跃、冲刺的音效
+| 参数 | 说明 | 推荐值 |
+|------|------|--------|
+| Walk Speed | 行走速度 | 5 |
+| Run Speed | 奔跑速度 | 8 |
+| Ground Acceleration | 地面加速度 | 15 |
+| Ground Deceleration | 地面减速度 | 20 |
+| Air Control Factor | 空中控制系数 | 0.6 |
 
-## 调试工具
+### 冲刺参数
 
-在Unity编辑器中，可以使用Gizmos来可视化：
-- 绿色框: 地面检测范围
-- 蓝色框: 墙壁检测范围  
-- 紫色框: 攀爬检测范围
+| 参数 | 说明 | 推荐值 |
+|------|------|--------|
+| Dash Speed | 冲刺速度 | 20 |
+| Dash Duration | 冲刺持续时间 | 0.15 |
+| Dash Cooldown | 冲刺冷却时间 | 0.5 |
+| Air Dash Count | 空中冲刺次数 | 1 |
+
+### 攀爬参数
+
+| 参数 | 说明 | 推荐值 |
+|------|------|--------|
+| Climb Speed | 攀爬速度 | 4 |
+| Climb Stamina | 最大体力 | 10 |
+| Stamina Regen Rate | 体力恢复速度 | 2 |
+
+### 跳跃参数
+
+| 参数 | 说明 | 推荐值 |
+|------|------|--------|
+| Jump Force | 跳跃力度 | 14 |
+| Jump Hold Force | 按住跳跃附加力 | 3 |
+| Coyote Time | 土狼时间 | 0.15 |
+| Jump Buffer Time | 跳跃缓冲时间 | 0.1 |
+| Max Jump Count | 最大跳跃次数 | 2 |
+
+## 使用示例
+
+### 创建可攀爬的梯子
+
+1. 创建一个空 GameObject
+2. 添加 `BoxCollider2D`（设置为 Trigger）
+3. 添加 `ClimbableSurface` 脚本
+4. 设置图层为 `Climbable`
+
+```csharp
+// 代码示例：动态创建可攀爬表面
+GameObject ladder = new GameObject("Ladder");
+ladder.layer = LayerMask.NameToLayer("Climbable");
+
+var collider = ladder.AddComponent<BoxCollider2D>();
+collider.isTrigger = true;
+collider.size = new Vector2(1, 5);
+
+ladder.AddComponent<ClimbableSurface>();
+```
+
+### 访问控制器状态
+
+```csharp
+PlayerController2D player = GetComponent<PlayerController2D>();
+
+// 检查状态
+bool isGrounded = player.IsGrounded;
+bool isDashing = player.IsDashing;
+bool isClimbing = player.IsClimbing;
+Vector2 velocity = player.Velocity;
+
+// 外部控制
+player.ResetDash();           // 重置冲刺
+player.RestoreStamina(5f);    // 恢复体力
+player.AddForce(Vector2.up * 10); // 施加力
+```
+
+### 相机控制
+
+```csharp
+PlayerCameraController camera = GetComponent<PlayerCameraController>();
+
+// 缩放控制
+camera.SetZoom(8f);           // 设置缩放
+camera.ApplyDashZoom(true);   // 冲刺缩放
+
+// 屏幕震动
+camera.Shake(1f, 0.5f);       // 震动强度1，持续0.5秒
+
+// 边界控制
+camera.SetBounds(new Vector2(-50, -20), new Vector2(50, 20));
+camera.ClearBounds();         // 清除边界
+```
+
+## 动画集成
+
+控制器会更新 Animator 的以下参数：
+
+| 参数名 | 类型 | 说明 |
+|--------|------|------|
+| VelocityX | Float | 水平速度 |
+| VelocityY | Float | 垂直速度 |
+| IsGrounded | Bool | 是否在地面上 |
+| IsCrouching | Bool | 是否下蹲 |
+| IsDashing | Bool | 是否冲刺 |
+| IsClimbing | Bool | 是否攀爬 |
+| IsWallSliding | Bool | 是否墙壁滑行 |
+| StaminaPercent | Float | 体力百分比 |
+
+## 最佳实践
+
+### 性能优化
+
+1. **使用对象池**: 对于频繁生成的对象（如残影、粒子）
+2. **减少物理检测**: 合理设置检测间隔
+3. **使用 sqrMagnitude**: 当比较距离平方足够时
+
+### 移动手感调优
+
+1. **土狼时间**: 0.1-0.2 秒提供最佳手感
+2. **跳跃缓冲**: 0.1 秒足以覆盖大多数输入延迟
+3. **空中控制**: 0.5-0.7 的系数提供平衡的控制感
+4. **摩擦力**: 与减速度配合，确保停止自然
+
+### 设计建议
+
+1. **冲刺**: 冲刺距离 = 速度 × 时间
+   - 快速冲刺: 高速度、短时间
+   - 长距离冲刺: 低速度、长时间
+
+2. **体力系统**: 
+   - 攀爬速度与体力消耗成正比
+   - 确保有足够的恢复时间
+
+3. **相机跟随**:
+   - 死区大小约为屏幕 1/6
+   - 视界预测距离 2-3 单位
+
+## 故障排除
+
+### 穿过地面
+
+- 增加 `Ground Check Size`
+- 调整 `Ground Check Offset`
+- 检查 `Rigidbody2D` 碰撞检测模式
+
+### 跳跃手感不佳
+
+- 调整 `Coyote Time` (0.1-0.2)
+- 调整 `Jump Buffer Time` (0.05-0.15)
+- 检查 `Jump Hold Force` 和 `Jump Hold Duration`
+
+### 冲刺不工作
+
+- 检查 `CanDash()` 返回值
+- 确认 `Air Dash Count` 设置正确
+- 验证 `Dash Cooldown` 不为 0
+
+### 攀爬不工作
+
+- 确认对象在 `Climbable` 图层
+- 检查 `ClimbableSurface` 组件存在
+- 验证 Collider 设置为 Trigger
+
+## 扩展开发
+
+### 添加新移动能力
+
+```csharp
+// 在 PlayerController2D 中添加
+[Header("新能力")]
+[SerializeField] private float newAbilityValue = 10f;
+
+private void HandleNewAbility()
+{
+    // 实现逻辑
+}
+
+private void Update()
+{
+    // 在现有方法后调用
+    HandleNewAbility();
+}
+```
+
+### 事件系统集成
+
+```csharp
+// 定义事件
+public event System.Action OnDashStart;
+public event System.Action OnDashEnd;
+
+// 触发事件
+private IEnumerator PerformDash()
+{
+    OnDashStart?.Invoke();
+    // ... 冲刺逻辑
+    OnDashEnd?.Invoke();
+}
+```
 
 ## 版本历史
 
-### v1.1 (2026-04-10)
-- 添加冲刺系统
-- 添加攀爬系统
-- 优化移动手感
-- 改进碰撞体过渡
-- 添加动画支持
-- 增强调试可视化
+- **v1.0.0** (2026-04-10)
+  - 初始版本
+  - 冲刺、攀爬、跳跃系统
+  - 相机跟随和音效控制
 
-### v1.0
-- 基础移动、跳跃、下蹲功能
-- 墙壁滑行和蹬墙跳
-- Coyote时间和跳跃缓冲
+## 许可
+
+MIT License
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
