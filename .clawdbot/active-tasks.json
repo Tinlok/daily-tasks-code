@@ -13,6 +13,34 @@
       "title": "Unity 2D 关卡编辑器原型",
       "status": "completed",
       "prUrl": "https://github.com/Tinlok/daily-tasks-code/pull/4"
+    },
+    {
+      "id": "2",
+      "date": "2026-04-09",
+      "tmuxSession": "agent-2",
+      "agent": "claude",
+      "description": "实现游戏基础UI系统（主菜单、暂停菜单、设置界面）",
+      "repo": "daily-tasks-code",
+      "worktree": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2",
+      "taskDir": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2/2026-04-09/task-2",
+      "branch": "feature/2026-04-09-task-2",
+      "startedAt": 1775692926000,
+      "status": "running",
+      "notifyOnComplete": true
+    },
+    {
+      "id": "2",
+      "date": "2026-04-10",
+      "tmuxSession": "agent-2",
+      "agent": "claude",
+      "description": "扩展PlayerController2D，添加冲刺+攀爬机制，完善移动手感\\n代码要求:\\n1. 在现有PlayerController2D基础上添加冲刺功能（短距离快速移动）\\n2. 添加攀爬机制（墙面攀爬、平台攀爬）\\n3. 优化移动手感（加速度、摩擦力、跳跃曲线）\\n4. 确保代码符合Unity最佳实践\\n5. 添加必要的注释和文档\\n\\n文件位置:\\n- PlayerControllerController2D.cs（核心控制器）\\n- 相关的脚本和预制体\\n\\n质量标准:\\n- 代码结构清晰，模块化设计\\n- 性能优化，避免冗余计算\\n- 完整的注释和文档\\n- 符合Unity编码规范",
+      "repo": "daily-tasks-code",
+      "worktree": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2",
+      "taskDir": "/Users/tinlok/Documents/GitHub/daily-tasks-code.worktrees/2/2026-04-10/task-2",
+      "branch": "feature/2026-04-10-task-2",
+      "startedAt": 1775779307000,
+      "status": "running",
+      "notifyOnComplete": true
     }
   ]
 }
